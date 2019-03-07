@@ -10,21 +10,21 @@ namespace Version_1_C
 {
     public partial class InputBox : Form
     {
-        private string answer;
+        private string _answer;
 
-        public InputBox(string question)
+        public InputBox(string prQuestion)
         {
             InitializeComponent();
-            lblQuestion.Text = question;
+            lblQuestion.Text = prQuestion;
             lblError.Text = "";
             txtAnswer.Focus();
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
+        private void btnOK_Click(object prSender, EventArgs e)
         {
             if (txtAnswer.Text.Length > 0 && txtAnswer.Text.Length < 2)
             {
-                answer = txtAnswer.Text;
+                _answer = txtAnswer.Text;
                 DialogResult = DialogResult.OK;
                 this.Close();
             }
@@ -34,7 +34,7 @@ namespace Version_1_C
             }
         }
 
-        private void btnCancel_Click(object sender, EventArgs e)
+        private void btnCancel_Click(object prSender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
             Close();
@@ -42,7 +42,7 @@ namespace Version_1_C
 
         public string getAnswer()
         {
-            return answer;
+            return _answer;
         }
     }
 }

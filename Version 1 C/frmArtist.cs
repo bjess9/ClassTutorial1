@@ -15,63 +15,97 @@ namespace Version_1_C
             InitializeComponent();
         }
 
-        private clsArtistList theArtistList;
-        private clsWorksList theWorksList;
-        private byte sortOrder; // 0 = Name, 1 = Date
+        private clsArtist _artist; 
+        //private clsArtistList _artistList;
+        private clsWorksList _worksList;
+        //private byte _sortOrder; // 0 = Name, 1 = Date
 
-        private void UpdateDisplay()
+        private void updateForm()
+        {
+            txtName.Text = _artist.Name;
+            txtPhone.Text = _artist.Phone;
+            txtSpeciality.Text = _artist.Speciality;
+
+        }
+
+        private void pushData()
+        {
+            _artist.Name = txtName.Text;
+            _artist.Phone = txtPhone.Text;
+            _artist.Speciality = txtSpeciality.Text;
+        }
+
+        private void updateDisplay()
         {
             txtName.Enabled = txtName.Text == "";
-            if (sortOrder == 0)
+            if (_worksList.SortOrder == 0)
             {
-                theWorksList.SortByName();
+                _worksList.SortByName();
                 rbByName.Checked = true;
             }
             else
             {
-                theWorksList.SortByDate();
+                _worksList.SortByDate();
                 rbByDate.Checked = true;
             }
 
             lstWorks.DataSource = null;
-            lstWorks.DataSource = theWorksList;
-            lblTotal.Text = Convert.ToString(theWorksList.GetTotalValue());
+            lstWorks.DataSource = _worksList;
+            lblTotal.Text = Convert.ToString(_worksList.GetTotalValue());
         }
 
-        public void SetDetails(string prName, string prSpeciality, string prPhone, byte prSortOrder,
-                               clsWorksList prWorksList, clsArtistList prArtistList)
+        public void SetDetails(clsArtist prArtist)
         {
-            txtName.Text = prName;
-            txtSpeciality.Text = prSpeciality;
-            txtPhone.Text = prPhone;
-            theArtistList = prArtistList;
-            theWorksList = prWorksList;
-            sortOrder = prSortOrder;
-            UpdateDisplay();
+            _artist = prArtist;
+            if(_worksList == null)
+            {
+                _worksList = new clsWorksList();
+            }
+            updateForm();
+            updateDisplay();
+            ShowDialog();
         }
 
-        public void GetDetails(ref string prName, ref string prSpeciality, ref string prPhone, ref byte prSortOrder)
+        private void btnDelete_Click(object prSender, EventArgs e)
         {
-            prName = txtName.Text;
-            prSpeciality = txtSpeciality.Text;
-            prPhone = txtPhone.Text;
-            prSortOrder = sortOrder;
+            if (MessageBox.Show("Are you sure?", "Deleting work", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                _worksList.DeleteWork(lstWorks.SelectedIndex);
+            }
+            
+            updateDisplay();
         }
 
-        private void btnDelete_Click(object sender, EventArgs e)
+        private void btnAdd_Click(object prSender, EventArgs e)
         {
-            theWorksList.DeleteWork(lstWorks.SelectedIndex);
-            UpdateDisplay();
+            if(_worksList == null)
+            {
+                _worksList = new clsWorksList();
+            }
+
+            char lcReply;
+            InputBox lcInputBox = new InputBox("Enter P for Painting, S for Sculpture and H for Photograph");
+            //inputBox.ShowDialog();
+            //if (inputBox.getAction() == true)
+            if (lcInputBox.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                lcReply = Convert.ToChar(lcInputBox.getAnswer());
+                bool lcResult = _worksList.AddWork(lcReply);
+                if(lcResult == false)
+                {
+                    MessageBox.Show("Incorrect Work Type, Please enter P for Painting, S for Sculpture and H for Photograph");
+                }
+            }
+            else
+            {
+                lcInputBox.Close();
+            }
+            updateDisplay();
         }
 
-        private void btnAdd_Click(object sender, EventArgs e)
+        private void btnClose_Click(object prSender, EventArgs e)
         {
-            theWorksList.AddWork();
-            UpdateDisplay();
-        }
-
-        private void btnClose_Click(object sender, EventArgs e)
-        {
+            pushData();
             if (isValid())
             {
                 DialogResult = DialogResult.OK;
@@ -81,7 +115,7 @@ namespace Version_1_C
         public virtual Boolean isValid()
         {
             if (txtName.Enabled && txtName.Text != "")
-                if (theArtistList.Contains(txtName.Text))
+                if (_artist.IsDuplicate(txtName.Text))
                 {
                     MessageBox.Show("Artist with that name already exists!");
                     return false;
@@ -92,20 +126,24 @@ namespace Version_1_C
                 return true;
         }
 
-        private void lstWorks_DoubleClick(object sender, EventArgs e)
+        private void lstWorks_DoubleClick(object prSender, EventArgs e)
         {
             int lcIndex = lstWorks.SelectedIndex;
             if (lcIndex >= 0)
             {
-                theWorksList.EditWork(lcIndex);
-                UpdateDisplay();
+                bool lcResult = _worksList.EditWork(lcIndex);
+                if (lcResult == false)
+                {
+                    MessageBox.Show("Sorry no work selected #" + Convert.ToString(lcIndex));
+                }
+                updateDisplay();
             }
         }
 
-        private void rbByDate_CheckedChanged(object sender, EventArgs e)
+        private void rbByDate_CheckedChanged(object prSender, EventArgs e)
         {
-            sortOrder = Convert.ToByte(rbByDate.Checked);
-            UpdateDisplay();
+            _worksList.SortOrder = Convert.ToByte(rbByDate.Checked);
+            updateDisplay();
         }
 
     }

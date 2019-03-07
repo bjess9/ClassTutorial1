@@ -1,47 +1,98 @@
 using System;
-using System.Collections;
-using System.Windows.Forms;
+using System.Collections.Generic;
+//using System.Windows.Forms;
 
 namespace Version_1_C
 {
-    [Serializable()] 
-    public class clsArtistList : SortedList
+    [Serializable()]
+    public class clsArtistList : SortedList<String, clsArtist>
     {
-        public void EditArtist(string prKey)
+
+        private const string _fileName = "gallery.xml";
+
+        public bool EditArtist(string prKey)
         {
             clsArtist lcArtist;
-            lcArtist = (clsArtist)this[prKey];
+            lcArtist = this[prKey];
             if (lcArtist != null)
+            {
                 lcArtist.EditDetails();
+                return true;
+            }
             else
-                MessageBox.Show("Sorry no artist by this name");
+            {
+                return false;
+            }
         }
-       
-        public void NewArtist()
+
+        public bool NewArtist()
         {
             clsArtist lcArtist = new clsArtist(this);
-            try
+
+            if (lcArtist.Name != "" && lcArtist != null)
             {
-                if (lcArtist.GetKey() != "")
-                {
-                    Add(lcArtist.GetKey(), lcArtist);
-                    MessageBox.Show("Artist added!");
-                }
+                Add(lcArtist.Name, lcArtist);
+                return true;
             }
-            catch (Exception)
+            else
             {
-                MessageBox.Show("Duplicate Key!");
+                return false;
             }
+
+
         }
-        
+
         public decimal GetTotalValue()
         {
             decimal lcTotal = 0;
             foreach (clsArtist lcArtist in Values)
             {
-                lcTotal += lcArtist.GetWorksValue();
+                lcTotal += lcArtist.TotalValue;
             }
             return lcTotal;
+        }
+
+    
+
+        public Exception Save()
+        {
+            try
+            {
+                System.IO.FileStream lcFileStream = new System.IO.FileStream(_fileName, System.IO.FileMode.Create);
+                System.Runtime.Serialization.Formatters.Binary.BinaryFormatter lcFormatter =
+                    new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+
+                lcFormatter.Serialize(lcFileStream, (this));
+                lcFileStream.Close();
+                return null;
+            }
+            catch (Exception e)
+            {
+
+                return e;
+            }
+        }
+
+        public static clsArtistList Retrieve(Exception prException)
+        {
+            clsArtistList lcArtistList;
+            try
+            {
+                System.IO.FileStream lcFileStream = new System.IO.FileStream(_fileName, System.IO.FileMode.Open);
+                System.Runtime.Serialization.Formatters.Binary.BinaryFormatter lcFormatter =
+                    new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+
+                lcArtistList = (clsArtistList)lcFormatter.Deserialize(lcFileStream);
+                lcFileStream.Close();
+            }
+
+            catch (Exception e)
+            {
+                lcArtistList = new clsArtistList();
+                prException = e;
+                
+            }
+            return lcArtistList;
         }
     }
 }

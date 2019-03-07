@@ -5,43 +5,41 @@ namespace Version_1_C
     [Serializable()] 
     public class clsArtist
     {
-        private string name;
-        private string speciality;
-        private string phone;
+        private string _name;
+        private string _speciality;
+        private string _phone;
         
-        private decimal theTotalValue;
+        private decimal _totalValue;
 
-        private clsWorksList theWorksList;
-        private clsArtistList theArtistList;
+        private clsWorksList _worksList;
+        private clsArtistList _artistList;
         
         private static frmArtist artistDialog = new frmArtist();
-        private byte sortOrder;
+
+        public string Name { get => _name; set => _name = value; }
+        public string Speciality { get => _speciality; set => _speciality = value; }
+        public string Phone { get => _phone; set => _phone = value; }
+        public decimal TotalValue { get => _totalValue; set => _totalValue = value; }
+        public clsWorksList WorksList { get => _worksList; set => _worksList = value; }
 
         public clsArtist(clsArtistList prArtistList)
         {
-            theWorksList = new clsWorksList();
-            theArtistList = prArtistList;
+            WorksList = new clsWorksList();
+            _artistList = prArtistList;
             EditDetails();
         }
         
         public void EditDetails()
         {
-            artistDialog.SetDetails(name, speciality, phone, sortOrder, theWorksList, theArtistList);
-            if (artistDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                artistDialog.GetDetails(ref name, ref speciality, ref phone, ref sortOrder);
-                theTotalValue = theWorksList.GetTotalValue();
-            }
+            artistDialog.SetDetails(this);
+
+            TotalValue = WorksList.GetTotalValue();
+            
         }
 
-        public string GetKey()
+        public bool IsDuplicate(string prArtistName)
         {
-            return name;
-        }
-
-        public decimal GetWorksValue()
-        {
-            return theTotalValue;
+            return _artistList.ContainsKey(prArtistName);
         }
     }
 }

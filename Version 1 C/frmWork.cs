@@ -11,34 +11,44 @@ namespace Version_1_C
     public partial class frmWork : Form
     {
 
+        protected clsWork _work;
+
         public frmWork()
         {
             InitializeComponent();
         }
-
-        public void SetDetails(string prName, DateTime prDate, decimal prValue)
+        protected virtual void updateForm()
         {
-            txtName.Text = prName;
-            txtCreation.Text = prDate.ToShortDateString();
-            txtValue.Text = Convert.ToString(prValue);
+            txtName.Text = _work.Name;
+            txtCreation.Text = _work.Date.ToShortDateString();
+            txtValue.Text = _work.Value.ToString();
+
         }
 
-        public void GetDetails(ref string prName, ref DateTime prDate, ref decimal prValue)
+        protected virtual void pushData()
         {
-            prName = txtName.Text;
-            prDate = Convert.ToDateTime(txtCreation.Text);
-            prValue = Convert.ToDecimal(txtValue.Text);
+            _work.Name = txtName.Text;
+            _work.Date = DateTime.Parse(txtCreation.Text);
+            _work.Value = decimal.Parse(txtValue.Text);
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
+
+        public void SetDetails(clsWork prWork)
+        {
+            _work = prWork;
+            updateForm();
+            ShowDialog();
+        }
+
+        private void btnOK_Click(object prSender, EventArgs e)
         {
             if (isValid() == true)
             {
-                DialogResult = DialogResult.OK;
+                pushData();
                 Close();
             }
         }
-        private void btnCancel_Click(object sender, EventArgs e)
+        private void btnCancel_Click(object prSender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
             Close();

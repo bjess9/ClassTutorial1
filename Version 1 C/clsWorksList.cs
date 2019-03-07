@@ -1,21 +1,42 @@
 using System;
-using System.Collections;
-using System.Windows.Forms;
+using System.Collections.Generic;
+//using System.Windows.Forms;
 
 namespace Version_1_C
 {
     [Serializable()] 
-    public class clsWorksList : ArrayList
+    public class clsWorksList : List<clsWork>
     {
-        private static clsNameComparer theNameComparer = new clsNameComparer();
-        private static clsDateComparer theDateComparer = new clsDateComparer();
-        
-        public void AddWork()
+
+        private byte _sortOrder;
+
+        private static clsNameComparer nameComparer = new clsNameComparer();
+        private static clsDateComparer dateComparer = new clsDateComparer();
+
+        public byte SortOrder { get => _sortOrder; set => _sortOrder = value; }
+
+        public bool AddWork(char prWorkType)
         {
-            clsWork lcWork = clsWork.NewWork();
+            clsWork lcWork = null;
+            switch (char.ToUpper(prWorkType))
+            {
+                case 'P': lcWork = new clsPainting();
+                    break;
+                case 'S': lcWork = new clsSculpture();
+                    break;
+                case 'H': lcWork = new clsPhotograph();
+                    break;
+                default: return false;
+            }
+            
             if (lcWork != null)
             {
                 Add(lcWork);
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
        
@@ -23,23 +44,21 @@ namespace Version_1_C
         {
             if (prIndex >= 0 && prIndex < this.Count)
             {
-                if (MessageBox.Show("Are you sure?", "Deleting work", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                {
-                    this.RemoveAt(prIndex);
-                }
+                this.RemoveAt(prIndex);
             }
         }
         
-        public void EditWork(int prIndex)
+        public bool EditWork(int prIndex)
         {
             if (prIndex >= 0 && prIndex < this.Count)
             {
                 clsWork lcWork = (clsWork)this[prIndex];
                 lcWork.EditDetails();
+                return true;
             }
             else
             {
-                MessageBox.Show("Sorry no work selected #" + Convert.ToString(prIndex));
+                return false;
             }
         }
 
@@ -48,19 +67,19 @@ namespace Version_1_C
             decimal lcTotal = 0;
             foreach (clsWork lcWork in this)
             {
-                lcTotal += lcWork.GetValue();
+                lcTotal += lcWork.Value;
             }
             return lcTotal;
         }
 
          public void SortByName()
          {
-             Sort(theNameComparer);
+             Sort(nameComparer);
          }
     
         public void SortByDate()
         {
-            Sort(theDateComparer);
+            Sort(dateComparer);
         }
     }
 }

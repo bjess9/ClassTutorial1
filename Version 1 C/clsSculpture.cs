@@ -1,17 +1,27 @@
 using System;
-using System.Windows.Forms;
+//using System.Windows.Forms;
 
 namespace Version_1_C
 {
     [Serializable()] 
     public class clsSculpture : clsWork
     {
-        private float theWeight;
-        private string theMaterial;
+        private float _weight;
+        private string _material;
+
+        [NonSerialized()]
+        private static frmSculpture _sculptureDialog;
+
+        public float Weight { get => _weight; set => _weight = value; }
+        public string Material { get => _material; set => _material = value; }
 
         public override void EditDetails()
         {
- 
+            if (_sculptureDialog == null)
+            {
+                _sculptureDialog = new frmSculpture();
+                _sculptureDialog.SetDetails(this);
+            }
         }
     }
 }
